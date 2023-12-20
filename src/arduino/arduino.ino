@@ -102,6 +102,37 @@ float read_tension() {
 }
 
 
+String get_direction(int servo_0, int servo_1) {
+    String direction = "N";
+
+    float tolerance = 115;
+    float inclinations[3] = {300, 580, 640};
+    float directions[4] = {150, 265, 380, 495};
+
+    if (servo_0 >= directions[0] - tolerance && servo_0 <= directions[0] + tolerance) {
+        direction = "N";
+    } else if (servo_0 > directions[1] - tolerance && servo_0 <= directions[1] + tolerance) {
+        direction = "NW";
+    } else if (servo_0 > directions[2] - tolerance && servo_0 <= directions[2] + tolerance) {
+        direction = "W";
+    } else if (servo_0 > directions[3] - tolerance && servo_0 <= directions[3] + tolerance) {
+        direction = "SW";
+    }
+
+    if (direction == "N" && servo_1 > inclinations[1]) {
+        direction = "S";
+    } else if (direction == "NW" && servo_1 > inclinations[1]) {
+        direction = "SE";
+    } else if (direction == "W" && servo_1 > inclinations[1]) {
+        direction = "E";
+    } else if (direction == "SW" && servo_1 > inclinations[1]) {
+        direction = "NE";
+    }
+
+    return direction;
+}
+
+
 void acquire_and_send(int servo1, int servo2) {
     float temperature = bme.getTemperature();
     uint32_t press = bme.getPressure();
@@ -119,36 +150,11 @@ void acquire_and_send(int servo1, int servo2) {
     Serial.print("humidity (unit percent): "); Serial.println(humi);
     Serial.print("light (unit percent): "); Serial.println(lux);
     Serial.print("energy production (unit percent): "); Serial.println(tens);
+    Serial.print("direction: "); Serial.println(direction);
     Serial.println("========  end print  ========");
     Serial.println();
 
     send_data(temperature, alti, humi, lux, tens, direction);
-}
-
-
-String get_direction(int servo_0, int servo_1) {
-    int MIN_ANGLE_0 = 150;
-    int MAX_ANGLE_0 = 440;
-
-    String dir[8] = {"N", "NW", "W", "SW", "S", "SE", "E", "NE"};
-
-    double tmp = (MAX_ANGLE_0 - MIN_ANGLE_0)/5;
-    int sol_idx = 0;
-
-    while (MIN_ANGLE_0 + sol_idx * tmp < servo_1) {
-        sol_idx++;
-    }
-
-    int MIN_ANGLE_1 = 300;
-    int MAX_ANGLE_1 = 640;
-
-    bool invert = servo_1 > MIN_ANGLE_1 + (MAX_ANGLE_1 - MIN_ANGLE_1)/ 2;
-
-    if (invert) {
-        sol_idx = (sol_idx+4)%8;
-    }
-
-    return dir[sol_idx];
 }
 
 
@@ -158,12 +164,12 @@ String get_direction(int servo_0, int servo_1) {
 
 void send_data(float temperature, float altitude, float humidity, float light, float energy, String direction) {
     StaticJsonDocument<200> doc;
-    doc["temperature"] = round(temperature);
-    doc["altitude"] = round(altitude);
-    doc["humidity"] = round(humidity);
-    doc["light"] = round(light * 100);
-    doc["energy"] = round(energy * 100);
-    doc["direction"] = direction;
+    doc["t"] = round(temperature);
+    doc["a"] = round(altitude);
+    doc["h"] = round(humidity);
+    doc["l"] = round(light * 100);
+    doc["e"] = round(energy * 100);
+    doc["d"] = direction;
 
     String body;
     serializeJson(doc, body);
@@ -200,51 +206,11 @@ void connect() {
 // =====================================================
 
 void loop() {
-    // MQTT client connection loop
-    client.loop();
-
-    if (!client.connected()) {
-        connect();
-    }
-
     // Initiate values and start servos movement loop
     float max_value = 0;
     int best_servo_1 = 60;
     int best_servo_2 = 120;
-
-    for (int angle = angle_min_1; angle <= angle_max_1; angle += ANGLE_INCREASE) {
-        int pulse = map(angle, 0, 360, SERVOMIN, SERVOMAX);
-
-        // Move bottom servo
-        pwm.setPWM(SERVO_1, 0, pulse);
-
-        for (int angle_2 = angle_min_2; angle_2 <= angle_max_2; angle_2 += ANGLE_INCREASE) {
-            int pulse = map(angle_2, 0, 500, SERVOMIN, SERVOMAX);
-            float current = read_tension();
-
-            // Move top servo
-            pwm.setPWM(SERVO_2, 0, pulse);
-
-            if (current > max_value) {
-                best_servo_1 = angle;
-                best_servo_2 = angle_2;
-                max_value = current;
-            }
-
-            Serial.println("======== start print ========");
-            Serial.print("Current: "); Serial.println(current);
-            Serial.print("Best: "); Serial.println(max_value);
-            Serial.print("Best pos (bottom): "); Serial.println(best_servo_1);
-            Serial.print("Best pos (top): "); Serial.println(best_servo_2);
-            Serial.print("Current Direction: "); Serial.println(get_direction(angle, angle_2));
-            Serial.println("========  end print  ========");
-
-            delay(500);
-        }
-    }
-
-    angle_min_1 = best_servo_1 - ANGLE_INCREASE * 2;
-    angle_max_1 = best_servo_1 + ANGLE_INCREASE * 2;
+    float curr_tension = read_tension();
 
     int pulse1 = map(best_servo_1, 0, 360, SERVOMIN, SERVOMAX);
     int pulse2 = map(best_servo_2, 0, 360, SERVOMIN, SERVOMAX);
@@ -253,8 +219,61 @@ void loop() {
     pwm.setPWM(SERVO_1, 0, pulse1);
     pwm.setPWM(SERVO_2, 0, pulse2);
 
+    // Perform scan only if current tension is < 95% of the last best tension, and it is daytime (tension > 0.15)
+    if (curr_tension < 0.95 * max_value && curr_tension > 0.15) {
+        for (int angle = angle_min_1; angle <= angle_max_1; angle += ANGLE_INCREASE) {
+            int pulse = map(angle, 0, 360, SERVOMIN, SERVOMAX);
+
+            // Move bottom servo
+            pwm.setPWM(SERVO_1, 0, pulse);
+
+            for (int angle_2 = angle_min_2; angle_2 <= angle_max_2; angle_2 += ANGLE_INCREASE) {
+                int pulse = map(angle_2, 0, 500, SERVOMIN, SERVOMAX);
+                float current = read_tension();
+
+                // Move top servo
+                pwm.setPWM(SERVO_2, 0, pulse);
+
+                if (current > max_value) {
+                    best_servo_1 = angle;
+                    best_servo_2 = angle_2;
+                    max_value = current;
+                }
+
+                Serial.println("======== start print ========");
+                Serial.print("Current: "); Serial.println(current);
+                Serial.print("Best: "); Serial.println(max_value);
+                Serial.print("Pos (bottom): "); Serial.println(angle);
+                Serial.print("Pos (top): "); Serial.println(angle_2);
+                Serial.print("Best pos (bottom): "); Serial.println(best_servo_1);
+                Serial.print("Best pos (top): "); Serial.println(best_servo_2);
+                Serial.print("Current Direction: "); Serial.println(get_direction(angle, angle_2));
+                Serial.println("========  end print  ========");
+
+                delay(500);
+            }
+        }
+
+        angle_min_1 = best_servo_1 - ANGLE_INCREASE * 2;
+        angle_max_1 = best_servo_1 + ANGLE_INCREASE * 2;
+
+        pulse1 = map(best_servo_1, 0, 360, SERVOMIN, SERVOMAX);
+        pulse2 = map(best_servo_2, 0, 360, SERVOMIN, SERVOMAX);
+
+        // Move servos to best found position
+        pwm.setPWM(SERVO_1, 0, pulse1);
+        pwm.setPWM(SERVO_2, 0, pulse2);
+    }
+
+    // MQTT client connection loop
+    client.loop();
+
+    if (!client.connected()) {
+        connect();
+    }
+
     // Capture sensors data and send to ElasticSearch
     acquire_and_send(best_servo_1, best_servo_2);
 
-    delay(20000);
+    delay(1000 * 60 * 20);
 }

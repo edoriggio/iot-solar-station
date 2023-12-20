@@ -1,0 +1,16 @@
+\section*{Cloud setup}
+
+For our cloud setup, we used Docker \footnote{https://www.docker.com} containers running in a DigitalOcean \footnote{https://www.digitalocean.com} instance (Figure~\ref{fig:do}).
+We decided to install ElasticSearch \footnote{https://www.elastic.co/elasticsearch}, a RESTful search and analytics database that works well with its dashboard builder, Kibana \footnote{https://www.elastic.co/kibana}.
+The setup was relatively straightforward, but we had some troubles at first because we discovered ElasticSearch is a quite memory-intensive program, therefore we had to resize our cloud instance to have more RAM available, as well as research how to allocate more memory for Docker containers. \\ \\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=15cm]{../assets/png/digital-ocean-graph}
+    \caption{A sneak peek of the DigitalOcean interface showing some telemetry about our cloud instance.}
+    \label{fig:do}
+\end{figure}\
+This allowed us to develop faster in the end because we had a shared database for measurement.
+We could collaborate more easily asynchronously as we had the same development environment for everyone.
+It is also a more realistic setup, although no HTTPS certificate was installed.
+We also had to specify the necessary port-forwarding rules in the intuitive DigitalOcean web interface to allow outside connection. \\ \\
+A list of the steps undertaken for this part can be found in file \texttt{scripts/es\_setup.sh} in the delivered zip.

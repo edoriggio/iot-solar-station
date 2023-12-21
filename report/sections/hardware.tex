@@ -19,6 +19,55 @@ solar panel and moves it on two different planes. The bottom servo rotates the
 panel, while the top servo adjusts the inclination of the panel. \\ \\
 To be able to interface with the Arduino board, we used a motor shield to which we connected both servos.
 Since they require some energy, the shield was connected to the wall outlet by means of a power supply cable. \\ \\
+This is our control algorithm for moving the servos in the best position:
+
+\begin{lstlisting}[style=mystyle,language=C,caption={The \texttt{get\_direction} function keeps track of the 2 rotation axis and computes the direction.}]
+// Initiate values and start servos movement loop
+int best_servo_1 = 200;
+int best_servo_2 = 300;
+float curr_tension = read_tension();
+
+// Perform scan only if current tension is < 95% of the last best tension, and it is daytime (tension > 0.15)
+if ((curr_tension < 0.95 * max_value || max_value == 0) && curr_tension > 0.15) {
+    max_value = 0.0;
+
+    for (int angle = angle_min_1; angle <= angle_max_1; angle += ANGLE_INCREASE) {
+        int pulse = map(angle, 0, 360, SERVOMIN, SERVOMAX);
+
+        // Move bottom servo
+        pwm.setPWM(SERVO_1, 0, pulse);
+
+        for (int angle_2 = angle_min_2; angle_2 <= angle_max_2; angle_2 += ANGLE_INCREASE) {
+            int pulse = map(angle_2, 0, 500, SERVOMIN, SERVOMAX);
+
+            // Move top servo
+            pwm.setPWM(SERVO_2, 0, pulse);
+            delay(100);
+
+            float current = read_tension();
+
+            if (current > max_value) {
+                best_servo_1 = angle;
+                best_servo_2 = angle_2;
+                max_value = current;
+            }
+
+            delay(500);
+        }
+    }
+
+    angle_min_1 = best_servo_1 - ANGLE_INCREASE * 2;
+    angle_max_1 = best_servo_1 + ANGLE_INCREASE * 2;
+
+    int pulse1 = map(best_servo_1, 0, 360, SERVOMIN, SERVOMAX);
+    int pulse2 = map(best_servo_2, 0, 360, SERVOMIN, SERVOMAX);
+
+    // Move servos to best found position
+    pwm.setPWM(SERVO_1, 0, pulse1);
+    pwm.setPWM(SERVO_2, 0, pulse2);
+}
+\end{lstlisting}
+
 As part of the telemetry data, we also added a small piece of code that keeps
 track of the orientation (NW = nord west, SO = south ovest, etc.). The IoT Solar
 Station should be positioned initially toward the north direction, since it is a

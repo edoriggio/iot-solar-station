@@ -1,4 +1,4 @@
-\section*{Communication}
+\section{Communication}
 
 For our project, we decided to implement communication with an MQTT (MQ Telemetry Transport) broker, which allows us to send lightweight, continuous messages to our cloud instance.
 We used the service shiftr.io, a high-performance broker that easily connects devices to the same network (Figure~\ref{fig:shiftrviz}). \\ \\
@@ -45,4 +45,16 @@ void send_data(float temperature, float altitude, float humidity, float light, f
     // Send data to the MQTT server
     client.publish("/sensors", body);
 }
+\end{lstlisting}
+
+\begin{lstlisting}[style=mystyle,language=Python,caption={Snippet of our \texttt{on\_message} function which is triggered every time the MQTT server receives a message from the broker. It ingests the data into ElasticSearch.}]
+@staticmethod
+def on_message(client, userdata, msg):
+    global es
+    print(f'{msg.topic} {msg.payload}')
+
+    data = json.loads(msg.payload)
+    data['@timestamp'] = datetime.now(ZoneInfo('Europe/Rome')).isoformat()
+
+    es.index(index=msg.topic, body=data)
 \end{lstlisting}

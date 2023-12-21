@@ -39,6 +39,8 @@ MQTTClient client;
 BH1750 light;
 
 float max_value = 0;
+int best_servo_1 = 200;
+int best_servo_2 = 300;
 int angle_min_1 = 150;
 int angle_max_1 = ANGLE_180;
 int angle_min_2 = 300;
@@ -107,7 +109,7 @@ String get_direction(int servo_0, int servo_1) {
     String direction = "N";
 
     float tolerance = 115;
-    float inclinations[3] = {300, 530, 640};
+    float inclinations[3] = {300, 550, 640};
     float directions[4] = {150, 265, 380, 495};
 
     if (servo_0 >= directions[0] - tolerance && servo_0 <= directions[0] + tolerance) {
@@ -208,16 +210,7 @@ void connect() {
 
 void loop() {
     // Initiate values and start servos movement loop
-    int best_servo_1 = 200;
-    int best_servo_2 = 300;
     float curr_tension = read_tension();
-
-    // int pulse1 = map(200, 0, 360, SERVOMIN, SERVOMAX);
-    // int pulse2 = map(300, 0, 360, SERVOMIN, SERVOMAX);
-
-    // // Move servos to best found position
-    // pwm.setPWM(SERVO_1, 0, pulse1);
-    // pwm.setPWM(SERVO_2, 0, pulse2);
 
     // Perform scan only if current tension is < 95% of the last best tension, and it is daytime (tension > 0.15)
     if ((curr_tension < 0.95 * max_value || max_value == 0) && curr_tension > 0.15) {

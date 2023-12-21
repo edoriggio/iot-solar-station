@@ -1,7 +1,7 @@
 \section*{Cloud setup}
 
-For our cloud setup, we used Docker \footnote{https://www.docker.com} containers running in a DigitalOcean \footnote{https://www.digitalocean.com} instance (Figure~\ref{fig:do}).
-We decided to install ElasticSearch \footnote{https://www.elastic.co/elasticsearch}, a RESTful search and analytics database that works well with its dashboard builder, Kibana \footnote{https://www.elastic.co/kibana}.
+For our cloud setup, we used Docker \cite{docker} containers running in a DigitalOcean \cite{do} instance (Figure~\ref{fig:do}).
+We decided to install ElasticSearch \cite{es}, a RESTful search and analytics database that works well with its dashboard builder, Kibana \cite{kibana}.
 The setup was relatively straightforward, but we had some troubles at first because we discovered ElasticSearch is a quite memory-intensive program, therefore we had to resize our cloud instance to have more RAM available, as well as research how to allocate more memory for Docker containers. \\ \\
 \begin{figure}[H]
     \centering

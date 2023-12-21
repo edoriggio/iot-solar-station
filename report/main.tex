@@ -1,69 +1,58 @@
-\documentclass{scrartcl}
-\setlength\paperwidth{20.999cm}
-\setlength\paperheight{29.699cm}
-\setlength\voffset{-1in}
-\setlength\hoffset{-1in}
-\setlength\topmargin{1.499cm}
-\setlength\headheight{12pt}
-\setlength\headsep{.7cm}
-\setlength\footskip{1.131cm}
-\setlength\textheight{25cm}
-\setlength\oddsidemargin{2.499cm}
-\setlength\textwidth{15.999cm}
-\setlength\parindent{0cm}
-\setlength\parskip{0.3em}
+\documentclass[unicode,11pt,a4paper,oneside,numbers=endperiod,openany]{scrartcl}
+\setlength{\parindent}{0em}
 
-\usepackage{amsmath}
-\usepackage{listings}
-\usepackage{xcolor}
-\usepackage{fancyvrb}
-\usepackage{newverbs}
-\usepackage{fancyhdr}
-\usepackage{extramarks}
-\usepackage{graphicx}
-\usepackage{mathtools}
-\usepackage{multicol}
+\input{assignment.sty}
+
+\usepackage{float}	
+\usepackage{caption}	
+\usepackage{pdflscape}
+\usepackage{multirow}
+\usepackage{enumitem}
+\setitemize{noitemsep,topsep=6pt,parsep=6pt,partopsep=6pt}
 \usepackage{hyperref}
-\usepackage{booktabs}
-\usepackage{float}
-\usepackage{subcaption}
+\usepackage[font=itshape]{quoting}
 
-\pagestyle{fancy}
-\lhead{Vavassori, Colangelo, Riggio, Corecco - Solar Weather Station}
-\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
-\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+% Listings
+%---------------------------------------------------------------------------
+\usepackage{listings}
 
-\newcommand\vartextvisiblespace[1][.6em]{%
-    \makebox[\#1]{%
-        \kern.07em
-        \vrule height.4ex
-        \hrulefill
-        \vrule height.4ex
-        \kern.07em
-    }%
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}
+\lstset{framextopmargin=5pt,framexbottommargin=5pt}
+\lstset{literate=
+    {─}{{\pmboxdrawuni{2500}}}1 
+    {├}{{\pmboxdrawuni{251C}}}1 
+    {└}{{\pmboxdrawuni{2514}}}1
+	{│}{{\pmboxdrawuni{2502}}}1
 }
+\lstset{aboveskip=10pt,belowskip=10pt,captionpos=b,abovecaptionskip=6pt}
 
 \begin{document}
-    \thispagestyle{plain}
 
-    \begin{center}
-        \hrule
+\setassignment
+\setduedate{21.12.2023}
 
-        \vspace{.4cm}
-        {\textbf {\Huge Solar Weather Station}} \\
-        \vspace{.2cm}
-        {\textbf Edge Computing in the IoT}
-        \vspace{.2cm}
-    \end{center}
-    {\textbf {Alfio Vavassori} } (alfio.vavassori@usi.ch) \hspace{\fill} \\
-    {\textbf {Cristiano Colangelo} } (cristiano.colangelo@usi.ch) \hspace{\fill} \\
-    {\textbf {Edoardo Riggio} } (edoardo.riggio@usi.ch) \hspace{\fill} \\
-    {\textbf {Samuel Corecco} } (samuel.corecco@usi.ch) \hspace{\fill}\today \\
-    \hrule
-    \vspace{.2cm}
+\serieheader{Edge Computing in the IoT | Group Project Report}{Fall 2023}{Authors: Alfio Vavassori, Cristiano Colangelo, Edoardo Riggio, Samuel Corecco}{}{\large{IoT Solar Station}}{}
 
-    \input{sections/hardware}
-    \input{sections/cloud-setup}
-    \input{sections/communication}
+%\tableofcontents
+
+\section{Abstract}
+
+\section{Hardware}
+
+\input{sections/hardware.tex}
+
+\section{Communication}
+
+\input{sections/communication.tex}
+
+\section{3D structure}
+
+\input{sections/cloud-setup.tex}
+
+\section{Dashboard}
+
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{IEEEtran}
+\bibliography{bibliography}{}
 
 \end{document}

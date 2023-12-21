@@ -18,7 +18,43 @@ are high-torque servos and are attached to a 3D-printed structure that holds the
 solar panel and moves it on two different planes. The bottom servo rotates the
 panel, while the top servo adjusts the inclination of the panel. \\ \\
 To be able to interface with the Arduino board, we used a motor shield to which we connected both servos.
-Since they require some energy, the shield was connected to the wall outlet by means of a power supply cable.
+Since they require some energy, the shield was connected to the wall outlet by means of a power supply cable. \\ \\
+As part of the telemetry data, we also added a small piece of code that keeps
+track of the orientation (NW = nord west, SO = south ovest, etc.). The IoT Solar
+Station should be positioned initially toward the north direction, since it is a
+closed-loop control algorithm for simplicity.
+
+\begin{lstlisting}[style=mystyle,language=C,caption={The \texttt{get\_direction} function keeps track of the 2 rotation axis and computes the direction.}]
+String get_direction(int servo_0, int servo_1) {
+    String direction = "N";
+
+    float tolerance = 115;
+    float inclinations[3] = {300, 580, 640};
+    float directions[4] = {150, 265, 380, 495};
+
+    if (servo_0 >= directions[0] - tolerance && servo_0 <= directions[0] + tolerance) {
+        direction = "N";
+    } else if (servo_0 > directions[1] - tolerance && servo_0 <= directions[1] + tolerance) {
+        direction = "NW";
+    } else if (servo_0 > directions[2] - tolerance && servo_0 <= directions[2] + tolerance) {
+        direction = "W";
+    } else if (servo_0 > directions[3] - tolerance && servo_0 <= directions[3] + tolerance) {
+        direction = "SW";
+    }
+
+    if (direction == "N" && servo_1 > inclinations[1]) {
+        direction = "S";
+    } else if (direction == "NW" && servo_1 > inclinations[1]) {
+        direction = "SE";
+    } else if (direction == "W" && servo_1 > inclinations[1]) {
+        direction = "E";
+    } else if (direction == "SW" && servo_1 > inclinations[1]) {
+        direction = "NE";
+    }
+
+    return direction;
+}
+\end{lstlisting}
 
 \subsection*{Ambient Sensor}
 Attached to the system, there is an ambient sensor which will capture several

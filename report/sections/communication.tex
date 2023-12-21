@@ -23,7 +23,7 @@ of the access point are not shared in the git repo. The latter is done by
 importing the \texttt{config.h} and \texttt{config.ini} files for the Arduino
 and Python programs respectively.
 
-\begin{lstlisting}[language=C,caption={Snippet of our \texttt{send\_data} function which serializes our sensor data into JSON and sends it over the MQTT broker.}]
+\begin{lstlisting}[style=mystyle,language=C,caption={Snippet of our \texttt{send\_data} function which serializes our sensor data into JSON and sends it over the MQTT broker.}]
 void send_data(float temperature, float altitude, float humidity, float light, float energy, String direction) {
     StaticJsonDocument<200> doc;
     doc["t"] = round(temperature);

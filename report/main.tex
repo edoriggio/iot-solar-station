@@ -1,4 +1,4 @@
-\documentclass[unicode,11pt,a4paper,oneside,numbers=endperiod,openany]{scrartcl}
+\documentclass[unicode,12pt,a4paper,oneside,numbers=endperiod,openany]{scrartcl}
 \setlength{\parindent}{0em}
 
 \input{assignment.sty}
@@ -33,9 +33,22 @@
 
 \serieheader{Edge Computing in the IoT | Group Project Report}{Fall 2023}{Authors: Alfio Vavassori, Cristiano Colangelo, Edoardo Riggio, Samuel Corecco}{}{\large{IoT Solar Station}}{}
 
-%\tableofcontents
+\tableofcontents
+
+\newpage
 
 \section{Abstract}
+
+The IoT Solar Station is an advanced weather station with an integrated
+self-positioning solar panel. The orthogonal 2-axis servo motors move the solar
+panel, while the attached voltmeter constantly measures the current power
+production. The solar panel moves at different angles and searches for the best
+one based on the voltmeter measurements. The onboard sensors send the collected
+data to a private MQTT broker, which forwards the data to a Python backend. The
+backend ingests the data into a DigitalOcean cloud instance hosting an
+ElasticSearch database via Docker containers. Finally, a Kibana dashboard
+deployed alongside the database showcases the collected data in nice, compact
+visualizations. 
 
 \section{Hardware}
 
@@ -47,9 +60,25 @@
 
 \section{3D structure}
 
+
+
 \input{sections/cloud-setup.tex}
 
 \section{Dashboard}
+
+To nicely visualize all the data we collected through the MQTT broker, we
+decided to build a Kibana dashboard since it integrates seamlessly with our
+ElasticSearch installation and provides a wide range of visualizations. We
+visualize all the data we gather and plot them in linecharts and gauges with
+unit of measurement as well. Please see the below screenshot.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../assets/png/kibana-dashboard.png}
+    \caption{The IoT Solar Station Kibana Dashboard.}
+    \label{fig:kib}
+\end{figure}\
+
 
 \addcontentsline{toc}{section}{References}
 \bibliographystyle{IEEEtran}

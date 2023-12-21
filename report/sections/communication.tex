@@ -12,7 +12,37 @@ When a message is sent from the Arduino, the Python server will receive the mess
     \caption{Visualization of our MQTT network through the shiftr.io interface. The "arduino" dot represents our Arduino Portenta device, the "brain" dot represents our Python backend, and the "sensors" dot represents the topic where messages are published.}
     \label{fig:shiftrviz}
 \end{figure}
-In brief, we used the Arduino WiFi library to connect to the Internet.
-We had troubles with USI's WiFi network, as it was necessary to authenticate, so we simply used our mobile hotspots.
-We used the Python library Eclipse Paho \cite{paho} to make our Python client subscribe to the topic, which was trivial.
-The respective library on the Arduino side is Arduino MQTT by Joël Gähwiler and contributors \cite{arduinomqtt}.
+In brief, we used the Arduino WiFi library to connect to the Internet. We had
+troubles with USI's WiFi network, as it was necessary to authenticate, so we
+simply used our mobile hotspots. We used the Python library Eclipse Paho
+\cite{paho} to make our Python client subscribe to the topic, which was trivial.
+The respective library on the Arduino side is Arduino MQTT by Joël Gähwiler and
+contributors \cite{arduinomqtt}. We also separated the configuration for both
+the Arduino and the Python backend so that secrets and individual configuration
+of the access point are not shared in the git repo. The latter is done by
+importing the \texttt{config.h} and \texttt{config.ini} files for the Arduino
+and Python programs respectively.
+
+\begin{lstlisting}[language=C,caption={Snippet of our \texttt{send\_data} function which serializes our sensor data into JSON and sends it over the MQTT broker.}]
+void send_data(float temperature, float altitude, float humidity, float light, float energy, String direction) {
+    StaticJsonDocument<200> doc;
+    doc["t"] = round(temperature);
+    doc["a"] = round(altitude);
+    doc["h"] = round(humidity);
+    doc["l"] = round(light * 100);
+    doc["e"] = round(energy * 100);
+    doc["d"] = direction;
+
+    String body;
+    serializeJson(doc, body);
+    char char_array[body.length() + 1];
+    body.toCharArray(char_array, body.length() + 1);
+
+    Serial.println("Sending to server:");
+    Serial.println(body);
+    Serial.println(char_array);
+
+    // Send data to the MQTT server
+    client.publish("/sensors", body);
+}
+\end{lstlisting}

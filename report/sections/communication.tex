@@ -1,5 +1,12 @@
 \section{Communication}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../assets/png/solar-station-arch.jpg}
+    \caption{The IoT Solar Station deployment architecture.}
+    \label{fig:kib}
+\end{figure}\
+
 For our project, we decided to implement communication with an MQTT (MQ Telemetry Transport) broker, which allows us to send lightweight, continuous messages to our cloud instance.
 We used the service shiftr.io, a high-performance broker that easily connects devices to the same network (Figure~\ref{fig:shiftrviz}). \\ \\
 To implement communication, we used a MQTT client library in both the Arduino Portenta and our Python backend.

@@ -19,7 +19,7 @@ def initiate_es_connection():
     global es
 
     config = configparser.ConfigParser()
-    config.read('../../config.ini')
+    config.read('config.ini')
     es_config = config['ELASTIC']
 
     es = Elasticsearch([es_config['server']], verify_certs=False)

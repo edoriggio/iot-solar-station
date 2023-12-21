@@ -6,7 +6,7 @@ from mqtt import MQTTClient, initiate_es_connection
 def main():
     # Read config file
     config = configparser.ConfigParser()
-    config.read('../../config.ini')
+    config.read('config.ini')
     mqtt_config = config['MQTT']
 
     # Initiate connection to ElasticSearch

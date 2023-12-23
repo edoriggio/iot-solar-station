@@ -1,7 +1,7 @@
 \documentclass[unicode,12pt,a4paper,oneside,numbers=endperiod,openany]{scrartcl}
 \setlength{\parindent}{0em}
 
-\input{assignment.sty}
+\input{style/assignment.sty}
 
 \usepackage{float}	
 \usepackage{caption}	
@@ -9,12 +9,7 @@
 \usepackage{multirow}
 \usepackage{enumitem}
 \setitemize{noitemsep,topsep=6pt,parsep=6pt,partopsep=6pt}
-\usepackage{hyperref}
 \usepackage[font=itshape]{quoting}
-
-% Listings
-%---------------------------------------------------------------------------
-\usepackage{listings}
 
 \lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}
 \lstset{framextopmargin=5pt,framexbottommargin=5pt}
@@ -51,19 +46,15 @@ deployed alongside the database showcases the collected data in nice, compact
 visualizations. 
 
 \section{Hardware}
-
 \input{sections/hardware.tex}
 
 \section{Communication}
-
 \input{sections/communication.tex}
 
 \section{3D structure}
-
 \input{sections/cloud-setup.tex}
 
 \section{Dashboard}
-
 To nicely visualize all the data we collected through the MQTT broker, we
 decided to build a Kibana dashboard since it integrates seamlessly with our
 ElasticSearch installation and provides a wide range of visualizations. We
@@ -80,6 +71,6 @@ unit of measurement as well. Please see the below screenshot.
 
 \addcontentsline{toc}{section}{References}
 \bibliographystyle{IEEEtran}
-\bibliography{bibliography}{}
+\bibliography{bibliography/bibliography}
 
 \end{document}

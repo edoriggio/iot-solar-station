@@ -4,9 +4,10 @@ pdf:
 	pdflatex ${filename}
 	pdflatex ${filename}
 	make clean
+	mv ./main.pdf ../out/report.pdf
 
 read:
-	evince ${filename}.pdf &
+	evince ../out/report.pdf &
 
 
 clean:
